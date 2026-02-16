@@ -39,31 +39,43 @@ func WriteAlphanumeric(input string, ecLevel ErrorCorrectionLevel) []byte {
 	writer.WriteUInt(uint64(charCount), uint8(charCountSize))
 
 	// Write/Encode the input string
-	bitsWritten, err := writeAlphanumericString(writer, input)
+	err = writeAlphanumericString(writer, input)
 	if err != nil {
 		panic(err)
 	}
-	
+
 	ecInfo := getEcInfo(version, ecLevel)
-	requiredBits := ecInfo.TotalDataCodewords * 8
+	var requiredBits int = ecInfo.TotalDataCodewords * 8
 
 	//Calculate the amount of terminator bits needed. Maximum of 4 as per the spec
-	terminatorSize := int(requiredBits) - bitsWritten
-	if terminatorSize > int(4) {
+	terminatorSize := requiredBits - writer.TotalBits()
+	if terminatorSize > 4 {
 		terminatorSize = 4
 	}
 	writer.WriteUInt(0, uint8(terminatorSize))
 
-	//Add padding bits if still not enough
+	// 2. Pad to next byte boundary
+	bitsInLastByte := writer.TotalBits() % 8
+	if bitsInLastByte != 0 {
+
+		writer.WriteUInt(0, uint8(8-bitsInLastByte))
+	}
+
+	//Add padding bits if still not enough (as per spec)
+	remainingBytes := (requiredBits - writer.TotalBits()) / 8
+	padBytes := []uint8{0xEC, 0x11}
+	for i := 0; i < remainingBytes; i++ {
+		writer.WriteUInt(uint64(padBytes[i%2]), 8)
+	}
 
 	return writer.Bytes()
 }
 
 /*
-	Numeric			0001
-	Alphanumeric 	0010
-	Byte			0100
-	Kanji			1000
+Numeric			0001
+Alphanumeric 	0010
+Byte			0100
+Kanji			1000
 */
 func getEncodingModeValue(mode EncodingMode) uint64 {
 	return uint64(1 << mode)

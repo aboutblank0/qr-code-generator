@@ -7,7 +7,7 @@ import (
 
 
 func main() {
-	bytes := qr.WriteAlphanumeric("HELLO WORLD", qr.EC_L)
+	bytes := qr.WriteAlphanumeric("HELLO WORLD", qr.EC_Q)
 	fmt.Printf("%08b\n", bytes)
 }
 

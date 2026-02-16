@@ -35,30 +35,27 @@ func getAlphanumericCharCount(s string) (int, error) {
 }
 
 
-func writeAlphanumericString(writer *bitwriter.BitWriter, s string) (int, error) {
+func writeAlphanumericString(writer *bitwriter.BitWriter, s string) error {
 	runes := []rune(s)
-	bitsWritten := 0
 	for i := 0; i < len(runes); i += 2 {
 		if i+1 < len(runes) {
 			ch1, ok := alphanumericValue(runes[i])
 			ch2, ok2 := alphanumericValue(runes[i+1])
 
 			if !ok || !ok2 {
-				return 0, fmt.Errorf("invalid character for alphanumeric encoding %q", runes[i])
+				return fmt.Errorf("invalid character for alphanumeric encoding %q", runes[i])
 			}
 
 			encoded := uint64(ch1) * 45 + uint64(ch2)
 			writer.WriteUInt(encoded, 11)
-			bitsWritten += 11
 		} else {
 			ch1, ok := alphanumericValue(runes[i])
 			if !ok {
-				return 0, fmt.Errorf("invalid character for alphanumeric encoding %q", runes[i])
+				return fmt.Errorf("invalid character for alphanumeric encoding %q", runes[i])
 			}
 
 			writer.WriteUInt(uint64(ch1), 6)
-			bitsWritten += 6
 		}
 	}
-	return bitsWritten, nil
+	return nil
 }

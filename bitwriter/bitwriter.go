@@ -35,3 +35,8 @@ func (b *BitWriter) Bytes() []byte {
 	}
 	return b.bytes
 }
+
+func (b *BitWriter) TotalBits() int {
+	byteCount := len(b.bytes)
+	return (byteCount * 8) + int(b.nBits)
+}
