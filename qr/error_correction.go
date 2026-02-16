@@ -62,7 +62,6 @@ var ecTable = [41][4]ecInfo{
 	// 3
 	{
 		{55, 15, blockGroup{1, 55}, blockGroup{}},
-
 		{44, 26, blockGroup{1, 44}, blockGroup{}},
 		{34, 18, blockGroup{2, 17}, blockGroup{}},
 		{26, 22, blockGroup{2, 13}, blockGroup{}},
@@ -106,13 +105,11 @@ var ecTable = [41][4]ecInfo{
 	{
 		{232, 30, blockGroup{2, 116}, blockGroup{}},
 		{182, 22, blockGroup{3, 36}, blockGroup{2, 37}},
-
 		{132, 20, blockGroup{4, 16}, blockGroup{4, 17}},
 		{100, 24, blockGroup{4, 12}, blockGroup{4, 13}},
 	},
 	// 10
 	{
-
 		{274, 18, blockGroup{2, 68}, blockGroup{2, 69}},
 		{216, 26, blockGroup{4, 43}, blockGroup{1, 44}},
 		{154, 24, blockGroup{6, 19}, blockGroup{2, 20}},
@@ -125,7 +122,6 @@ var ecTable = [41][4]ecInfo{
 		{180, 28, blockGroup{4, 22}, blockGroup{4, 23}},
 		{140, 24, blockGroup{3, 12}, blockGroup{8, 13}},
 	},
-
 	// 12
 	{
 		{370, 24, blockGroup{2, 92}, blockGroup{2, 93}},
@@ -142,18 +138,15 @@ var ecTable = [41][4]ecInfo{
 	},
 	// 14
 	{
-
 		{461, 30, blockGroup{3, 115}, blockGroup{1, 116}},
 		{365, 24, blockGroup{4, 40}, blockGroup{5, 41}},
 		{261, 20, blockGroup{11, 16}, blockGroup{5, 17}},
 		{197, 24, blockGroup{11, 12}, blockGroup{5, 13}},
 	},
 	// 15
-
 	{
 		{523, 22, blockGroup{5, 87}, blockGroup{1, 88}},
 		{415, 24, blockGroup{5, 41}, blockGroup{5, 42}},
-
 		{295, 30, blockGroup{5, 24}, blockGroup{7, 25}},
 		{223, 24, blockGroup{11, 12}, blockGroup{7, 13}},
 	},
@@ -169,14 +162,12 @@ var ecTable = [41][4]ecInfo{
 		{647, 28, blockGroup{1, 107}, blockGroup{5, 108}},
 		{507, 28, blockGroup{10, 46}, blockGroup{1, 47}},
 		{367, 28, blockGroup{1, 22}, blockGroup{15, 23}},
-
 		{283, 28, blockGroup{2, 14}, blockGroup{17, 15}},
 	},
 	// 18
 	{
 		{721, 30, blockGroup{5, 120}, blockGroup{1, 121}},
 		{563, 26, blockGroup{9, 43}, blockGroup{4, 44}},
-
 		{397, 28, blockGroup{17, 22}, blockGroup{1, 23}},
 		{313, 28, blockGroup{2, 14}, blockGroup{19, 15}},
 	},
@@ -190,7 +181,6 @@ var ecTable = [41][4]ecInfo{
 	// 20
 	{
 		{861, 28, blockGroup{3, 107}, blockGroup{5, 108}},
-
 		{669, 26, blockGroup{3, 41}, blockGroup{13, 42}},
 		{485, 30, blockGroup{15, 24}, blockGroup{5, 25}},
 		{385, 28, blockGroup{15, 15}, blockGroup{10, 16}},
@@ -198,7 +188,6 @@ var ecTable = [41][4]ecInfo{
 	// 21
 	{
 		{932, 28, blockGroup{4, 116}, blockGroup{4, 117}},
-
 		{714, 26, blockGroup{17, 42}, blockGroup{}},
 		{512, 28, blockGroup{17, 22}, blockGroup{6, 23}},
 		{406, 30, blockGroup{19, 16}, blockGroup{6, 17}},
@@ -222,7 +211,6 @@ var ecTable = [41][4]ecInfo{
 		{1174, 30, blockGroup{6, 117}, blockGroup{4, 118}},
 		{914, 28, blockGroup{6, 45}, blockGroup{14, 46}},
 		{664, 30, blockGroup{11, 24}, blockGroup{16, 25}},
-
 		{514, 30, blockGroup{30, 16}, blockGroup{2, 17}},
 	},
 	// 25
@@ -233,7 +221,6 @@ var ecTable = [41][4]ecInfo{
 		{538, 30, blockGroup{22, 15}, blockGroup{13, 16}},
 	},
 	// 26
-
 	{
 		{1370, 28, blockGroup{10, 114}, blockGroup{2, 115}},
 		{1062, 28, blockGroup{19, 46}, blockGroup{4, 47}},
@@ -242,9 +229,7 @@ var ecTable = [41][4]ecInfo{
 	},
 	// 27
 	{
-
 		{1468, 30, blockGroup{8, 122}, blockGroup{4, 123}},
-
 		{1128, 28, blockGroup{22, 45}, blockGroup{3, 46}},
 		{808, 30, blockGroup{8, 23}, blockGroup{26, 24}},
 		{628, 30, blockGroup{12, 15}, blockGroup{28, 16}},
@@ -267,9 +252,7 @@ var ecTable = [41][4]ecInfo{
 	// 30
 	{
 		{1735, 30, blockGroup{5, 115}, blockGroup{10, 116}},
-
 		{1373, 28, blockGroup{19, 47}, blockGroup{10, 48}},
-
 		{985, 30, blockGroup{15, 24}, blockGroup{25, 25}},
 		{745, 30, blockGroup{23, 15}, blockGroup{25, 16}},
 	},
@@ -282,7 +265,6 @@ var ecTable = [41][4]ecInfo{
 	},
 	// 32
 	{
-
 		{1955, 30, blockGroup{17, 115}, blockGroup{}},
 		{1541, 28, blockGroup{10, 46}, blockGroup{23, 47}},
 		{1115, 30, blockGroup{10, 24}, blockGroup{35, 25}},
@@ -290,14 +272,12 @@ var ecTable = [41][4]ecInfo{
 	},
 	// 33
 	{
-
 		{2071, 30, blockGroup{17, 115}, blockGroup{1, 116}},
 		{1631, 28, blockGroup{14, 46}, blockGroup{21, 47}},
 		{1171, 30, blockGroup{29, 24}, blockGroup{19, 25}},
 		{901, 30, blockGroup{11, 15}, blockGroup{46, 16}},
 	},
 	// 34
-
 	{
 		{2191, 30, blockGroup{13, 115}, blockGroup{6, 116}},
 		{1725, 28, blockGroup{14, 46}, blockGroup{23, 47}},
@@ -313,12 +293,9 @@ var ecTable = [41][4]ecInfo{
 	},
 	// 36
 	{
-
 		{2434, 30, blockGroup{6, 121}, blockGroup{14, 122}},
 		{1914, 28, blockGroup{6, 47}, blockGroup{34, 48}},
-
 		{1354, 30, blockGroup{46, 24}, blockGroup{10, 25}},
-
 		{1054, 30, blockGroup{2, 15}, blockGroup{64, 16}},
 	},
 	// 37
