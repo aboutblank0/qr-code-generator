@@ -349,8 +349,8 @@ var capacity = [41][4][4]int{
 	},
 }
 
-func getCharCapacity(version Version, eclevel ErrorCorrectionLevel, mode EncodingMode) int {
-	return capacity[version][eclevel][mode]
+func getCharCapacity(version Version, ecLevel ErrorCorrectionLevel, mode EncodingMode) int {
+	return capacity[version][ecLevel][mode]
 }
 
 // charcountsize[VersionGroup][EncodingMode] => max characters
