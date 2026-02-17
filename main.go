@@ -5,7 +5,6 @@ import (
 	"fmt"
 )
 
-
 func main() {
 	bytes := qr.WriteAlphanumeric("HELLO WORLD", qr.EC_Q)
 	fmt.Printf("%08b\n", bytes)

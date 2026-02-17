@@ -44,7 +44,7 @@ func WriteAlphanumeric(input string, ecLevel ErrorCorrectionLevel) []byte {
 		panic(err)
 	}
 
-	ecInfo := getEcInfo(version, ecLevel)
+	var ecInfo ecInfo = getEcInfo(version, ecLevel)
 	var requiredBits int = ecInfo.TotalDataCodewords * 8
 
 	//Calculate the amount of terminator bits needed. Maximum of 4 as per the spec
@@ -69,6 +69,16 @@ func WriteAlphanumeric(input string, ecLevel ErrorCorrectionLevel) []byte {
 	}
 
 	return writer.Bytes()
+}
+
+
+//TODO: Split the above function into these two steps
+func EncodeAlphaNumeric() {
+
+}
+
+func EncodeErrorCorrection(writer *bitwriter.BitWriter, ecInfo ecInfo) {
+
 }
 
 /*
