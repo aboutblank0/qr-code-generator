@@ -73,7 +73,7 @@ func WriteAlphanumeric(input string, ecLevel ErrorCorrectionLevel) []byte {
 
 
 //TODO: Split the above function into these two steps
-func EncodeAlphaNumeric() {
+func EncodeAlphanumeric() {
 
 }
 
