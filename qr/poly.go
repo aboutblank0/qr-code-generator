@@ -12,7 +12,6 @@ func PolyMultiply(a, b []byte) []byte {
             result[i+j] = gf256.Add(result[i+j], gf256.Multiply(a[i], b[j]))
         }
     }
-
     return result
 }
 
@@ -21,7 +20,7 @@ func PolyMultiply(a, b []byte) []byte {
 //The very first polynomial that you start with in the first step is always (ɑ0x1 + ɑ0x0).
 //For each multiplication step, you multiply the current polynomial by (ɑ^0x^1 + ɑ^j^x0) where j is 1 for the first multiplication, 2 for the second multiplication, 3 for the third, and so on.
 
-func BuildGenerator(r int)[]byte {
+func buildGenerator(r int)[]byte {
     if r < 1 {
 	panic("cannot make generator polynomial for r < 1")
     }
@@ -32,4 +31,11 @@ func BuildGenerator(r int)[]byte {
 	curr = PolyMultiply(curr, term)
     }
     return curr
+}
+
+// This is used as a way to multiply a polynomial by x^k
+func shiftPoly(p []byte, k int) []byte {
+    shifted := make([]byte, len(p)+k)
+    copy(shifted, p)
+    return shifted
 }

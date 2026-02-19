@@ -1,22 +1,15 @@
 package main
 
 import (
-	"aboutblank/qr-code/gf256"
 	"aboutblank/qr-code/qr"
 	"fmt"
 )
 
 func main() {
-	//	bytes := qr.WriteAlphanumeric("HELLO WORLD", qr.EC_Q)
-	//	fmt.Printf("%08b\n", bytes)
 
-	r := 7
-	test := qr.BuildGenerator(r)
-	fmt.Printf("r: %d\n", r)
-	for _, a := range test {
-		fmt.Printf("%d ", gf256.Log(a))
-	}
-	fmt.Println()
+	//DELETE ME
+	ecBytes := qr.GenerateQRCode("HELLO WORLD", qr.Alphanumeric, qr.EC_M)
+	fmt.Printf("%d\n", ecBytes)
 
 	//res := qr.PolyMultiply([]byte{1, 0, 0, 1}, []byte{1, 0, 0, 1})
 	//fmt.Printf("%d\n", res)
