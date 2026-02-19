@@ -1,5 +1,7 @@
 package qr
 
+import "aboutblank/qr-code/gf256"
+
 type ErrorCorrectionLevel int
 
 const (
@@ -21,6 +23,30 @@ type ecInfo struct {
 	Group2              blockGroup // Blocks == 0 if unused
 }
 
+// TODO: Stop generating the generator polynomial every time..
+// Just do it once and reuse.
+func GenerateErrorCorrectionCodeWords(dataCodeWords []byte, ecInfo ecInfo) []byte {
+	genPoly := buildGenerator(ecInfo.ECCodewordsPerBlock)
+
+	// Multiply message by x^n 
+	messagePoly := shiftPoly(dataCodeWords, ecInfo.ECCodewordsPerBlock)
+
+	// Division loop
+	for i := 0; i <= len(messagePoly)-len(genPoly); i++ {
+		lead := messagePoly[i]
+		if lead == 0 {
+			continue
+		}
+		for j := range genPoly {
+			messagePoly[i+j] ^= gf256.Multiply(genPoly[j], lead)
+		}
+	}
+
+	// Last n bytes = EC codewords
+	ecBytes := messagePoly[len(messagePoly)-ecInfo.ECCodewordsPerBlock:]
+	return ecBytes
+}
+
 func getEcInfo(version Version, ecLevel ErrorCorrectionLevel) ecInfo {
 	return ecTable[version][ecLevel]
 }
@@ -37,7 +63,7 @@ func (e ecInfo) TotalCodewords() int {
 	return e.TotalDataCodewords + e.TotalECCodewords()
 }
 
-func (e ecInfo) TotalBits() int {
+func (e ecInfo) TotalRequiredBits() int {
 	return e.TotalCodewords() * 8
 }
 

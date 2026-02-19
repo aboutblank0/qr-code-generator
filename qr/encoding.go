@@ -2,7 +2,6 @@ package qr
 
 import (
 	"aboutblank/qr-code/bitwriter"
-	"aboutblank/qr-code/gf256"
 	"fmt"
 )
 
@@ -45,8 +44,8 @@ func GenerateQRCode(input string, encodingMode EncodingMode, ecLevel ErrorCorrec
 		panic(err)
 	}
 
-	var ecInfo ecInfo = getEcInfo(version, ecLevel)
-	var requiredBits int = ecInfo.TotalDataCodewords * 8
+	ecInfo := getEcInfo(version, ecLevel)
+	requiredBits := ecInfo.TotalRequiredBits()
 
 	//Calculate the amount of terminator bits needed. Maximum of 4 as per the spec
 	terminatorSize := min(requiredBits-writer.TotalBits(), 4)
@@ -67,29 +66,9 @@ func GenerateQRCode(input string, encodingMode EncodingMode, ecLevel ErrorCorrec
 
 	dataCodeWords := writer.Bytes()
 	ecCodeWords := GenerateErrorCorrectionCodeWords(dataCodeWords, ecInfo)
+
+	getFinalMessage(dataCodeWords, ecCodeWords, ecInfo)
 	return ecCodeWords
-}
-
-func GenerateErrorCorrectionCodeWords(dataCodeWords []byte, ecInfo ecInfo) []byte {
-	genPoly := buildGenerator(ecInfo.ECCodewordsPerBlock)
-
-	// Multiply message by x^n 
-	messagePoly := shiftPoly(dataCodeWords, ecInfo.ECCodewordsPerBlock)
-
-	// Division loop
-	for i := 0; i <= len(messagePoly)-len(genPoly); i++ {
-		lead := messagePoly[i]
-		if lead == 0 {
-			continue
-		}
-		for j := range genPoly {
-			messagePoly[i+j] ^= gf256.Multiply(genPoly[j], lead)
-		}
-	}
-
-	// Last n bytes = EC codewords
-	ecBytes := messagePoly[len(messagePoly)-ecInfo.ECCodewordsPerBlock:]
-	return ecBytes
 }
 
 
@@ -112,4 +91,15 @@ func getCharCount(mode EncodingMode, data string) (int, error) {
 	default:
 		return 0, fmt.Errorf("invalid encoding mode")
 	}
+}
+
+// Determines the minimum QR Code version required to "fit" all of the data (charCount)
+func determineMinQRVersion(charCount int, ecLevel ErrorCorrectionLevel, mode EncodingMode) (Version, error) {
+	for version := Version(1); version <= 40; version++ {
+		if capacity[version][ecLevel][mode] >= charCount {
+			return version, nil
+		}
+	}
+
+	return 0, fmt.Errorf("data too long for any QR code version with this ErrorCorrection level")
 }
