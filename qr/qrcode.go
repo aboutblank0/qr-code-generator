@@ -1,90 +1,97 @@
 package qr
 
+import (
+	"image"
+)
+
 type Version uint8
 
-func getFinalMessage(dataCodeWords, _ []byte, ecInfo ecInfo) []byte {
-	// ====== Handle Data Code Words =======
-	data1 := make([][]byte, 0, ecInfo.Group1.Blocks)
-	for i := range cap(data1) {
-		block := dataCodeWords[i*ecInfo.Group1.DataCodewords : i*ecInfo.Group1.DataCodewords+ecInfo.Group1.DataCodewords]
-		data1 = append(data1, block)
-	}
-
-	var data2 [][]byte
-	if ecInfo.Group2.Blocks > 0 {
-		offset := ecInfo.Group1.Blocks * ecInfo.Group1.DataCodewords
-		data2 = make([][]byte, 0, ecInfo.Group2.Blocks)
-		for i := range cap(data2) {
-			start := offset + i*ecInfo.Group2.DataCodewords
-			end := start + ecInfo.Group2.DataCodewords
-			block := dataCodeWords[start:end]
-			data2 = append(data2, block)
-		}
-	}
-
-	// ====== Handle Error Correction Code Words =======
-	ec1 := make([][]byte, 0, ecInfo.Group1.Blocks)
-	for _, data := range data1 {
-		ecCodeWords := GenerateErrorCorrectionCodeWords(data, ecInfo)
-		ec1 = append(ec1, ecCodeWords)
-	}
-
-	var ec2 [][]byte
-	if data2 != nil {
-		ec2 = make([][]byte, 0, ecInfo.Group2.Blocks)
-		for _, data := range data2 {
-			ecCodeWords := GenerateErrorCorrectionCodeWords(data, ecInfo)
-			ec2 = append(ec2, ecCodeWords)
-		}
-	}
-
-	// ====== Interleave the data Code Words =======
-	allDataBlocks := append(data1, data2...)
-
-	maxDataLen := 0
-	for _, block := range allDataBlocks {
-		if len(block) > maxDataLen {
-			maxDataLen = len(block)
-		}
-	}
-
-	interleavedData := make([]byte, 0, len(allDataBlocks)*maxDataLen)
-	for i := 0; i < maxDataLen; i++ {
-		for _, block := range allDataBlocks {
-			if i < len(block) {
-				interleavedData = append(interleavedData, block[i])
-			}
-		}
-
-	}
-
-	// ====== Interleave Error Correction Codewords ======
-
-	// Combine all EC blocks from both groups
-	allECBlocks := append(ec1, ec2...)
-
-	// Find the maximum EC block length
-
-	maxECLen := 0
-	for _, block := range allECBlocks {
-
-		if len(block) > maxECLen {
-			maxECLen = len(block)
-		}
-	}
-
-	interleavedEC := make([]byte, 0, len(allECBlocks)*maxECLen)
-	for i := 0; i < maxECLen; i++ {
-
-		for _, block := range allECBlocks {
-
-			if i < len(block) {
-				interleavedEC = append(interleavedEC, block[i])
-			}
-		}
-	}
-
-	finalCodewords := append(interleavedData, interleavedEC...)
-
-	return finalCodewords
+type QRCode struct {
+	Version      Version
+	ModuleMatrix [][]Module
 }
+
+type Module struct {
+	Value    bool
+	Reserved bool
+}
+
+func New(version Version) *QRCode {
+	qr := &QRCode{}
+	qr.Version = version
+
+	size := qr.GetSize()
+	qr.ModuleMatrix = make([][]Module, size)
+	for i := range qr.ModuleMatrix {
+		qr.ModuleMatrix[i] = make([]Module, size)
+	}
+	return qr
+}
+
+func (qr QRCode) GetSize() int {
+	return int(21 + 4*(qr.Version-1))
+}
+
+func (qr *QRCode) GenerateImage(scale int) *image.RGBA {
+	size := qr.GetSize()
+	w, h := size*scale, size*scale
+	img := image.NewRGBA(image.Rect(0, 0, w, h))
+	pix := img.Pix
+	stride := img.Stride
+
+	for x := range size {
+		for y := range size {
+			c := byte(255) // white
+			if qr.ModuleMatrix[x][y].Value {
+				c = 0
+			}
+
+			// Fill the scale×scale block
+			for dy := range scale {
+				rowStart := (y*scale+dy)*stride + x*scale*4
+				for dx := range scale {
+					offset := rowStart + dx*4
+					pix[offset+0] = c   // R
+					pix[offset+1] = c   // G
+					pix[offset+2] = c   // B
+					pix[offset+3] = 255 // A
+				}
+			}
+		}
+	}
+
+	return img
+}
+
+func (qr *QRCode) AddFinderPatterns() {
+	size := qr.GetSize()
+
+	// Top left
+	qr.addSquare(0, 0, 7, false)
+	qr.addSquare(0 + 2, 0 + 2, 3, true)
+
+	// Bottom Left
+	qr.addSquare(0, size-7, 7, false)
+	qr.addSquare(0 + 2, size-7 + 2, 3, true)
+
+	// Top Right
+	qr.addSquare(size-7, 0, 7, false)
+	qr.addSquare(size-7 + 2, 0 + 2, 3, true)
+
+}
+
+func (qr *QRCode) addSquare(startX, startY, size int, fill bool) {
+	for y := range size {
+		for x := range size {
+			if fill {
+				qr.ModuleMatrix[startX+x][startY+y].Value = true
+				continue
+			}
+
+			if x == 0 || x == size-1 || y == 0 || y == size-1 {
+				qr.ModuleMatrix[startX+x][startY+y].Value = true
+			}
+		}
+	}
+}
+
