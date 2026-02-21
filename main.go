@@ -2,26 +2,15 @@ package main
 
 import (
 	"aboutblank/qr-code/qr"
-	"fmt"
 	"image"
 	"image/png"
 	"os"
 )
 
 func main() {
-	//DELETE ME
-	finalMessage := qr.GenerateQRCode("HELLO WORLD", qr.Alphanumeric, qr.EC_M)
-	fmt.Printf("%d\n", finalMessage)
-
-	//res := qr.PolyMultiply([]byte{1, 0, 0, 1}, []byte{1, 0, 0, 1})
-	//fmt.Printf("%d\n", res)
-	//mult := gf256.Multiply(0b00000001, 0b00000001)
-	//fmt.Printf("%08b\n", mult)
-
 	qrCode := qr.New(qr.Version(10))
+	qrCode.Test()
 
-	qrCode.AddFinderPatternsAndSeparators()
-	qrCode.AddAlignmentPatterns()
 	image := qrCode.GenerateImage(10)
 	SaveImage(image, "qrcode.png")
 }
