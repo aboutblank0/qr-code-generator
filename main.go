@@ -18,10 +18,11 @@ func main() {
 	//mult := gf256.Multiply(0b00000001, 0b00000001)
 	//fmt.Printf("%08b\n", mult)
 
-	qrCode := qr.New(qr.Version(1))
+	qrCode := qr.New(qr.Version(10))
 
-	qrCode.AddFinderPatterns()
-	image := qrCode.GenerateImage(4)
+	qrCode.AddFinderPatternsAndSeparators()
+	qrCode.AddAlignmentPatterns()
+	image := qrCode.GenerateImage(10)
 	SaveImage(image, "qrcode.png")
 }
 
