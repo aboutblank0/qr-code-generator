@@ -8,14 +8,14 @@ func TestPopSingleByte(t *testing.T) {
 	tests := []struct {
 		want bool
 	}{
-		{false}, // bit 0
-		{true},  // bit 1
-		{false}, // bit 2
-		{true},  // bit 3
-		{false}, // bit 4
-		{true},  // bit 5
-		{false}, // bit 6
-		{true},  // bit 7
+		{true},  // bit 0
+		{false}, // bit 1
+		{true},  // bit 2
+		{false}, // bit 3
+		{true},  // bit 4
+		{false}, // bit 5
+		{true},  // bit 6
+		{false}, // bit 7
 	}
 
 	for i, tt := range tests {
@@ -48,13 +48,13 @@ func TestPopAllOnes(t *testing.T) {
 
 func TestPopMultipleBytes(t *testing.T) {
 	r := New([]byte{
-		0b00000001,
-		0b00000010,
+		0b10000000,
+		0b01000010,
 	})
 
 	expected := []bool{
 		true, false, false, false, false, false, false, false, // first byte
-		false, true, false, false, false, false, false, false, // second byte
+		false, true, false, false, false, false, true, false, // second byte
 	}
 
 	for i, want := range expected {

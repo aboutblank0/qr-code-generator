@@ -1,6 +1,7 @@
 package qr
 
 import (
+	"aboutblank/qr-code/bitreader"
 	"image"
 )
 
@@ -113,7 +114,7 @@ func (qr *QRCode) setModule(x, y int, value ModuleValue, reserved bool) {
 	qr.ModuleMatrix[x][y].Reserved = reserved
 }
 
-func (qr *QRCode) Test() {
+func (qr *QRCode) Test(data []byte) {
 	qr.AddFinderPatternsAndSeparators()
 	qr.AddAlignmentPatterns()
 	qr.AddTimingPatterns()
@@ -121,6 +122,7 @@ func (qr *QRCode) Test() {
 
 	qr.ReserveFormatModules()
 	qr.ReserveVersionModules()
+	qr.WriteData(data)
 }
 
 func (qr *QRCode) AddFinderPatternsAndSeparators() {
@@ -231,13 +233,13 @@ func (qr *QRCode) ReserveVersionModules() {
 	if qr.Version < 7 {
 		return
 	}
-	
+
 	// Top right
 	startX := qr.GetSize() - 11
 	startY := 0
 	for x := range 3 {
 		for y := range 6 {
-			qr.setModule(startX + x, startY + y, ValueNone, true)
+			qr.setModule(startX+x, startY+y, ValueNone, true)
 		}
 	}
 
@@ -246,7 +248,71 @@ func (qr *QRCode) ReserveVersionModules() {
 	startY = qr.GetSize() - 11
 	for x := range 6 {
 		for y := range 3 {
-			qr.setModule(startX + x, startY + y, ValueNone, true)
+			qr.setModule(startX+x, startY+y, ValueNone, true)
+		}
+	}
+}
+
+func (qr *QRCode) WriteData(data []byte) {
+	size := qr.GetSize()
+	skipX := 6 //x coordinate to "skip"
+
+	reader := bitreader.New(data)
+
+	x, y := size-1, size-1
+
+
+	// Draw first module
+	if !qr.getModule(x, y).Reserved {
+		if reader.Pop() {
+			qr.setModule(x, y, ValueBlack, false)
+		} else {
+			qr.setModule(x, y, ValueWhite, false)
+		}
+	}
+
+	yDir := -1
+	moveY := false
+	wrapped := true
+
+	for reader.HasData() {
+		/*
+			// Handle wrapping
+			if y == 0 || y == size-1 {
+				movedY = true
+				yDir *= -1
+				x -= 2
+			}
+		*/
+
+		// Handle zig zag
+		if moveY {
+			if (y == 0 || y == size-1) && !wrapped { // Handle Wrapping
+				wrapped = true
+				x--
+
+				if x == skipX { // Special case to skip over timer pattern
+					x--
+				}
+
+				yDir *= -1
+			} else {
+				x++
+				y += yDir
+				wrapped = false
+			}
+			moveY = false
+		} else {
+			x--
+			moveY = true
+		}
+
+		if !qr.getModule(x, y).Reserved {
+			if reader.Pop() {
+				qr.setModule(x, y, ValueBlack, false)
+			} else {
+				qr.setModule(x, y, ValueWhite, false)
+			}
 		}
 	}
 }
