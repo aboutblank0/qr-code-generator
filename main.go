@@ -2,17 +2,15 @@ package main
 
 import (
 	"aboutblank/qr-code/qr"
-	"fmt"
 	"image"
 	"image/png"
 	"os"
 )
 
 func main() {
-	data := qr.GenerateQRCode("ABOUT BLANK", qr.Alphanumeric, qr.EC_M)
-	fmt.Printf("Final data (interleaved): %d\n", data)
+	data := qr.GenerateQRCode("ABOUT BLANK", qr.Alphanumeric, qr.EC_H)
 
-	qrCode := qr.New(qr.Version(1), qr.EC_M)
+	qrCode := qr.New(qr.Version(2), qr.EC_H)
 	qrCode.Test(data)
 
 	image := qrCode.GenerateImage(10)

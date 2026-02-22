@@ -193,6 +193,8 @@ func New(version Version, ecLevel ErrorCorrectionLevel) *QRCode {
 		qr.ModuleMatrix[i] = make([]Module, qr.size)
 	}
 
+	// NOTE: It's important that they are WRITTEN to in this specific order. (both format and version)
+
 	qr.formatPositions = [30][2]int{
 		// Top-left area
 		{0, 8}, {1, 8}, {2, 8}, {3, 8}, {4, 8}, {5, 8}, {7, 8}, {8, 8},
@@ -206,6 +208,12 @@ func New(version Version, ecLevel ErrorCorrectionLevel) *QRCode {
 	}
 
 	qr.versionPositions = [36][2]int{
+		// Bottom-left block (6x3)
+		{0, size - 11}, {0, size - 10}, {0, size - 9}, {1, size - 11}, {1, size - 10}, {1, size - 9},
+		{2, size - 11}, {2, size - 10}, {2, size - 9}, {3, size - 11}, {3, size - 10}, {3, size - 9},
+		{4, size - 11}, {4, size - 10}, {4, size - 9}, {5, size - 11}, {5, size - 10}, {5, size - 9},
+
+
 		// Top-right block (3x6)
 		{size - 11, 0}, {size - 10, 0}, {size - 9, 0},
 		{size - 11, 1}, {size - 10, 1}, {size - 9, 1},
@@ -213,11 +221,6 @@ func New(version Version, ecLevel ErrorCorrectionLevel) *QRCode {
 		{size - 11, 3}, {size - 10, 3}, {size - 9, 3},
 		{size - 11, 4}, {size - 10, 4}, {size - 9, 4},
 		{size - 11, 5}, {size - 10, 5}, {size - 9, 5},
-
-		// Bottom-left block (6x3)
-		{0, size - 11}, {1, size - 11}, {2, size - 11}, {3, size - 11}, {4, size - 11}, {5, size - 11},
-		{0, size - 10}, {1, size - 10}, {2, size - 10}, {3, size - 10}, {4, size - 10}, {5, size - 10},
-		{0, size - 9}, {1, size - 9}, {2, size - 9}, {3, size - 9}, {4, size - 9}, {5, size - 9},
 	}
 
 	return qr
@@ -345,12 +348,9 @@ func (qr *QRCode) WriteData(data []byte) {
 	positions := qr.dataPositions()
 
 	for _, pos := range positions {
-		if !reader.HasData() {
-			break
-		}
 
 		val := ValueWhite
-		if reader.Pop() {
+		if reader.HasData() && reader.Pop() {
 			val = ValueBlack
 		}
 
