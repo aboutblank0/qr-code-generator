@@ -8,11 +8,7 @@ import (
 )
 
 func main() {
-	data := qr.GenerateQRCode("ABOUT BLANK", qr.Alphanumeric, qr.EC_H)
-
-	qrCode := qr.New(qr.Version(2), qr.EC_H)
-	qrCode.Test(data)
-
+	qrCode := qr.GenerateQRCode("ABOUT BLANK", qr.Alphanumeric, qr.EC_High)
 	image := qrCode.GenerateImage(10)
 	SaveImage(image, "qrcode.png")
 }

@@ -1,78 +1,7 @@
 package qr
 
-import "aboutblank/qr-code/gf256"
-
-type ErrorCorrectionLevel int
-
-const (
-	EC_L ErrorCorrectionLevel = iota
-	EC_M
-	EC_Q
-	EC_H
-)
-
-type blockGroup struct {
-	Blocks        int // number of blocks
-	DataCodewords int // data codewords per block
-}
-
-type ecInfo struct {
-	TotalDataCodewords  int
-	ECCodewordsPerBlock int
-	Group1              blockGroup
-	Group2              blockGroup // Blocks == 0 if unused
-}
-
-// TODO: Stop generating the generator polynomial every time..
-// Just do it once and reuse.
-func GenerateErrorCorrectionCodeWords(dataCodeWords []byte, ecInfo ecInfo) []byte {
-	genPoly := buildGenerator(ecInfo.ECCodewordsPerBlock)
-
-	// Multiply message by x^n 
-	messagePoly := shiftPoly(dataCodeWords, ecInfo.ECCodewordsPerBlock)
-
-	// Division loop
-	for i := 0; i <= len(messagePoly)-len(genPoly); i++ {
-		lead := messagePoly[i]
-		if lead == 0 {
-			continue
-		}
-		for j := range genPoly {
-			messagePoly[i+j] ^= gf256.Multiply(genPoly[j], lead)
-		}
-	}
-
-	// Last n bytes = EC codewords
-	ecBytes := messagePoly[len(messagePoly)-ecInfo.ECCodewordsPerBlock:]
-	return ecBytes
-}
-
-func getEcInfo(version Version, ecLevel ErrorCorrectionLevel) ecInfo {
-	return ecTable[version][ecLevel]
-}
-
-func (e ecInfo) TotalBlocks() int {
-	return e.Group1.Blocks + e.Group2.Blocks
-}
-
-func (e ecInfo) TotalECCodewords() int {
-	return e.TotalBlocks() * e.ECCodewordsPerBlock
-}
-
-func (e ecInfo) TotalCodewords() int {
-	return e.TotalDataCodewords + e.TotalECCodewords()
-}
-
-func (e ecInfo) TotalDataBits() int {
-	return e.TotalDataCodewords * 8
-}
-
-func (e ecInfo) TotalRequiredBits() int {
-	return e.TotalCodewords() * 8
-}
-
 // ecTable[version][ecLevel]
-var ecTable = [41][4]ecInfo{
+var ecTable = [41][4]ErrorCorrectionInfo{
 	{}, // version 0 unused
 
 	// 1

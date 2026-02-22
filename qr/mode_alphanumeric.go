@@ -34,7 +34,6 @@ func getAlphanumericCharCount(s string) (int, error) {
 	return count, nil
 }
 
-
 func writeAlphanumericString(writer *bitwriter.BitWriter, s string) error {
 	runes := []rune(s)
 	for i := 0; i < len(runes); i += 2 {

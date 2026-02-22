@@ -1,11 +1,53 @@
 package gf256
 
-import "fmt"
+func Add(a, b byte) byte {
+	return a ^ b
+}
+
+func Subtract(a, b byte) byte {
+	return Add(a, b)
+}
+
+func Multiply(a, b byte) byte {
+	if a == 0 || b == 0 {
+		return 0
+	}
+	idx := int(gfLog[a])+int(gfLog[b])
+	return gfExp[idx % 255]
+}
+
+func Divide(a, b byte) byte {
+	if b == 0 {
+		panic("division by zero not allowed")
+	}
+
+	if a == 0 {
+		return 0
+	}
+
+	idx := int(gfLog[a])-int(gfLog[b]) + 255
+	return gfExp[idx % 255]
+}
+
+func Exp(i byte) byte {
+	return gfExp[i]
+}
+
+// NOTE: TO SELF
+//Returns the α^i that results in the polynomial produced by that number
+//
+// For example: 00000011 (3 in decimal, x + 1) is represented as α^25
+// Therefore this function will return 25 for the byte 00000011
+//
+// α = primitive
+func Log(i byte) byte {
+	return gfLog[i]
+}
 
 // Pre-computed values of 2^i % gfPoly  (where i is the index).
 // It is essentially repeated twice (at 512/2) to avoid having to % 256.
 //
-// where gfPoly is 0x11d
+// where gfPoly is 0x11d (x^8 + x^4 + x^3 + x^2 + 1)
 // NOTE: TO SELF
 // gfPoly is essentially a "prime" polynomial. It's what allows division to be reversible. Though I've haven't fully grasped the why/how.
 var gfExp = [256]byte{
@@ -52,55 +94,4 @@ var gfLog = [256]byte{
 	108, 161, 59, 82, 41, 157, 85, 170, 251, 96, 134, 177, 187, 204, 62, 90,
 	203, 89, 95, 176, 156, 169, 160, 81, 11, 245, 22, 235, 122, 117, 44, 215,
 	79, 174, 213, 233, 230, 231, 173, 232, 116, 214, 244, 234, 168, 80, 88, 175,
-}
-
-func Add(a, b byte) byte {
-	return a ^ b
-}
-
-func Subtract(a, b byte) byte {
-	return Add(a, b)
-}
-
-func Multiply(a, b byte) byte {
-	if a == 0 || b == 0 {
-		return 0
-	}
-	idx := int(gfLog[a])+int(gfLog[b])
-	return gfExp[idx % 255]
-}
-
-func Divide(a, b byte) byte {
-	if b == 0 {
-		panic("division by zero not allowed")
-	}
-	if a == 0 {
-		return 0
-	}
-	idx := int(gfLog[a])-int(gfLog[b]) + 255
-	return gfExp[idx % 255]
-}
-
-func Exp(i byte) byte {
-	return gfExp[i]
-}
-
-// NOTE: TO SELF
-//Returns the α^i that results in the polynomial produced by that number
-//
-// For example: 00000011 (3 in decimal, x + 1) is represented as α^25
-// Therefore this function will return 25 for the byte 00000011
-//
-// α = primitive
-func Log(i byte) byte {
-	return gfLog[i]
-}
-
-
-func Test() {
-	for i := 1; i < 256; i++ {
-		if gfExp[gfLog[i]] != byte(i) {
-			fmt.Println("Mismatch at", i)
-		}
-	}
 }

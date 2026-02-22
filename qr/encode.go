@@ -14,13 +14,21 @@ const (
 	Kanji
 )
 
-const EncodingModeSize uint8 = 4
+/*
+Numeric			0001
+Alphanumeric 	0010
+Byte			0100
+Kanji			1000
+*/
+func getEncodingModeValue(mode EncodingMode) uint64 {
+	return uint64(1 << mode)
+}
 
-func GenerateQRCode(input string, encodingMode EncodingMode, ecLevel ErrorCorrectionLevel) []byte {
+func GenerateQRCode(input string, encodingMode EncodingMode, ecLevel ErrorCorrectionLevel) *QRCode {
 	writer := bitwriter.New()
 
-	// Write the encoding mode indicator
-	writer.WriteUInt(getEncodingModeValue(encodingMode), EncodingModeSize)
+	// Write the encoding mode indicator (always 4 bits)
+	writer.WriteUInt(getEncodingModeValue(encodingMode), 4)
 
 	charCount, err := getCharCount(encodingMode, input)
 	if err != nil {
@@ -65,13 +73,14 @@ func GenerateQRCode(input string, encodingMode EncodingMode, ecLevel ErrorCorrec
 	}
 
 	dataCodeWords := writer.Bytes()
-	fmt.Printf("Data Code words: %d\n", dataCodeWords)
-
 	finalMessage := getFinalMessage(dataCodeWords, ecInfo)
-	return finalMessage
+
+	qrCode := New(version, ecLevel)
+	qrCode.Test(finalMessage)
+	return qrCode
 }
 
-func getFinalMessage(dataCodeWords []byte, ecInfo ecInfo) []byte {
+func getFinalMessage(dataCodeWords []byte, ecInfo ErrorCorrectionInfo) []byte {
 	// ====== Handle Data Code Words =======
 	data1 := make([][]byte, 0, ecInfo.Group1.Blocks)
 	for i := range cap(data1) {
@@ -94,8 +103,7 @@ func getFinalMessage(dataCodeWords []byte, ecInfo ecInfo) []byte {
 	// ====== Handle Error Correction Code Words =======
 	ec1 := make([][]byte, 0, ecInfo.Group1.Blocks)
 	for _, data := range data1 {
-		ecCodeWords := GenerateErrorCorrectionCodeWords(data, ecInfo)
-		fmt.Printf("EC Code words: %d\n", ecCodeWords)
+		ecCodeWords := generateErrorCorrectionCodeWords(data, ecInfo)
 		ec1 = append(ec1, ecCodeWords)
 	}
 
@@ -103,7 +111,7 @@ func getFinalMessage(dataCodeWords []byte, ecInfo ecInfo) []byte {
 	if data2 != nil {
 		ec2 = make([][]byte, 0, ecInfo.Group2.Blocks)
 		for _, data := range data2 {
-			ecCodeWords := GenerateErrorCorrectionCodeWords(data, ecInfo)
+			ecCodeWords := generateErrorCorrectionCodeWords(data, ecInfo)
 			ec2 = append(ec2, ecCodeWords)
 		}
 	}
@@ -129,7 +137,6 @@ func getFinalMessage(dataCodeWords []byte, ecInfo ecInfo) []byte {
 	}
 
 	// ====== Interleave Error Correction Codewords ======
-
 	// Combine all EC blocks from both groups
 	allECBlocks := append(ec1, ec2...)
 
@@ -157,21 +164,10 @@ func getFinalMessage(dataCodeWords []byte, ecInfo ecInfo) []byte {
 	return finalCodewords
 }
 
-
-/*
-Numeric			0001
-Alphanumeric 	0010
-Byte			0100
-Kanji			1000
-*/
-func getEncodingModeValue(mode EncodingMode) uint64 {
-	return uint64(1 << mode)
-}
-
 // Different encoding modes count chars differently
 // TODO: Add support for other encoding modes
 func getCharCount(mode EncodingMode, data string) (int, error) {
-	switch mode{
+	switch mode {
 	case Alphanumeric:
 		return getAlphanumericCharCount(data)
 	default:
@@ -182,7 +178,7 @@ func getCharCount(mode EncodingMode, data string) (int, error) {
 // Determines the minimum QR Code version required to "fit" all of the data (charCount)
 func determineMinQRVersion(charCount int, ecLevel ErrorCorrectionLevel, mode EncodingMode) (Version, error) {
 	for version := Version(1); version <= 40; version++ {
-		if capacity[version][ecLevel][mode] >= charCount {
+		if getMaxCharCapacity(version, ecLevel, mode) >= charCount {
 			return version, nil
 		}
 	}

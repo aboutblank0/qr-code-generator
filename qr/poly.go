@@ -15,11 +15,10 @@ func PolyMultiply(a, b []byte) []byte {
     return result
 }
 
-//How to Create a Generator Polynomial (From Thonky.com)
-// In each step of creating a generator polynomial, you multiply a polynomial by a polynomial. 
-//The very first polynomial that you start with in the first step is always (ɑ0x1 + ɑ0x0).
-//For each multiplication step, you multiply the current polynomial by (ɑ^0x^1 + ɑ^j^x0) where j is 1 for the first multiplication, 2 for the second multiplication, 3 for the third, and so on.
-
+// How to Create a Generator Polynomial (From Thonky.com)
+// In each step of creating a generator polynomial, you multiply a polynomial by a polynomial.
+// The very first polynomial that you start with in the first step is always (ɑ0x1 + ɑ0x0).
+// For each multiplication step, you multiply the current polynomial by (ɑ^0x^1 + ɑ^j^x0) where j is 1 for the first multiplication, 2 for the second multiplication, 3 for the third, and so on.
 func buildGenerator(r int)[]byte {
     if r < 1 {
 	panic("cannot make generator polynomial for r < 1")
@@ -33,7 +32,7 @@ func buildGenerator(r int)[]byte {
     return curr
 }
 
-// This is used as a way to multiply a polynomial by x^k
+// This is used as a faster/simpler way to multiply a polynomial by x^k
 func shiftPoly(p []byte, k int) []byte {
     shifted := make([]byte, len(p)+k)
     copy(shifted, p)
