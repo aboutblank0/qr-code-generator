@@ -16,6 +16,15 @@ var alphaNumMap = [128]uint8{
 	'-': 41, '.': 42, '/': 43, ':': 44,
 }
 
+func canEcodeAlphanumeric(s string) bool {
+	for _, r := range s {
+		if _, ok := alphanumericValue(r); !ok {
+			return false
+		}
+	}
+	return true
+}
+
 func alphanumericValue(r rune) (uint, bool) {
 	if r > 127 || alphaNumMap[r] == 0 && r != '0' {
 		return 0, false

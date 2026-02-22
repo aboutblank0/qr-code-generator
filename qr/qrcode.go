@@ -105,7 +105,7 @@ func (qr *QRCode) setModule(x, y int, value ModuleValue, reserved bool) {
 	qr.moduleMatrix[x][y].Reserved = reserved
 }
 
-func (qr *QRCode) Test(data []byte) {
+func (qr *QRCode) ApplyFinalMessage(data []byte) {
 	qr.AddFinderPatternsAndSeparators()
 	qr.AddAlignmentPatterns()
 	qr.AddTimingPatterns()

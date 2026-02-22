@@ -8,10 +8,10 @@ import (
 type EncodingMode uint8
 
 const (
-	Numeric EncodingMode = iota
-	Alphanumeric
-	Byte
-	Kanji
+	Encode_Numeric EncodingMode = iota
+	Encode_Alphanumeric
+	Encode_Byte
+	Encode_Kanji
 )
 
 /*
@@ -47,7 +47,7 @@ func GenerateQRCode(input string, encodingMode EncodingMode, ecLevel ErrorCorrec
 	writer.WriteUInt(uint64(charCount), uint8(charCountSize))
 
 	// Write/Encode the input string
-	err = writeAlphanumericString(writer, input)
+	err = writeString(writer, encodingMode, input)
 	if err != nil {
 		panic(err)
 	}
@@ -76,7 +76,7 @@ func GenerateQRCode(input string, encodingMode EncodingMode, ecLevel ErrorCorrec
 	finalMessage := getFinalMessage(dataCodeWords, ecInfo)
 
 	qrCode := New(version, ecLevel)
-	qrCode.Test(finalMessage)
+	qrCode.ApplyFinalMessage(finalMessage)
 	return qrCode
 }
 
@@ -165,14 +165,38 @@ func getFinalMessage(dataCodeWords []byte, ecInfo ErrorCorrectionInfo) []byte {
 }
 
 // Different encoding modes count chars differently
-// TODO: Add support for other encoding modes
 func getCharCount(mode EncodingMode, data string) (int, error) {
 	switch mode {
-	case Alphanumeric:
+	case Encode_Numeric:
+		return getNumericCharCount(data)
+	case Encode_Alphanumeric:
 		return getAlphanumericCharCount(data)
+	case Encode_Byte:
+		return getByteCharCount(data)
+	case Encode_Kanji:
+		return getKanjiCharCount(data)
 	default:
 		return 0, fmt.Errorf("invalid encoding mode")
 	}
+}
+
+func writeString(writer *bitwriter.BitWriter, mode EncodingMode, data string) error {
+	var err error
+
+	switch mode {
+	case Encode_Numeric:
+		err = writeNumericString(writer, data)
+	case Encode_Alphanumeric:
+		err = writeAlphanumericString(writer, data)
+	case Encode_Byte:
+		err = writeByteString(writer, data)
+	case Encode_Kanji:
+		err = writeKanjiString(writer, data)
+	default:
+		return fmt.Errorf("invalid encoding mode")
+	}
+
+	return err
 }
 
 // Determines the minimum QR Code version required to "fit" all of the data (charCount)
