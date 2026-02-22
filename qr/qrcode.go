@@ -613,14 +613,22 @@ func (qr *QRCode) dataPositions() [][2]int {
 
 func (qr *QRCode) GenerateImage(scale int) *image.RGBA {
 	size := qr.size
-	w, h := size*scale, size*scale
+	padding := 4 // quiet zone (light modules)
+	gridSize := size + (padding * 2)
+
+	w, h := gridSize*scale, gridSize*scale
 	img := image.NewRGBA(image.Rect(0, 0, w, h))
 	pix := img.Pix
 	stride := img.Stride
 
+	// make everything white
+	for i := range pix {
+		pix[i] = 255
+	}
+
 	for x := range size {
 		for y := range size {
-			c := byte(255) // white
+			c := byte(255)
 
 			switch qr.ModuleMatrix[x][y].Value {
 			case ValueBlack:
@@ -629,20 +637,21 @@ func (qr *QRCode) GenerateImage(scale int) *image.RGBA {
 				c = 123
 			}
 
-			// TODO: DELETE. Debugging
+			// TODO: REMOVE ME DEBUGGING
 			if qr.ModuleMatrix[x][y].Value == ValueNone && qr.ModuleMatrix[x][y].Reserved {
 				c = 50
 			}
 
-			// Fill the scale×scale block
+			drawX := (x + padding) * scale
+			drawY := (y + padding) * scale
 			for dy := range scale {
-				rowStart := (y*scale+dy)*stride + x*scale*4
+				rowStart := (drawY+dy)*stride + drawX*4
 				for dx := range scale {
 					offset := rowStart + dx*4
-					pix[offset+0] = c   // R
-					pix[offset+1] = c   // G
-					pix[offset+2] = c   // B
-					pix[offset+3] = 255 // A
+					pix[offset+0] = c
+					pix[offset+1] = c
+					pix[offset+2] = c
+					pix[offset+3] = 255
 				}
 			}
 		}
