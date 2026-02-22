@@ -45,7 +45,7 @@ func GenerateQRCode(input string, encodingMode EncodingMode, ecLevel ErrorCorrec
 	}
 
 	ecInfo := getEcInfo(version, ecLevel)
-	requiredBits := ecInfo.TotalRequiredBits()
+	requiredBits := ecInfo.TotalDataBits()
 
 	//Calculate the amount of terminator bits needed. Maximum of 4 as per the spec
 	terminatorSize := min(requiredBits-writer.TotalBits(), 4)
@@ -57,6 +57,7 @@ func GenerateQRCode(input string, encodingMode EncodingMode, ecLevel ErrorCorrec
 		writer.WriteUInt(0, uint8(8-bitsInLastByte))
 	}
 
+
 	// Add padding bits if still not enough (as per spec)
 	remainingBytes := (requiredBits - writer.TotalBits()) / 8
 	padBytes := []uint8{0xEC, 0x11}
@@ -64,8 +65,9 @@ func GenerateQRCode(input string, encodingMode EncodingMode, ecLevel ErrorCorrec
 		writer.WriteUInt(uint64(padBytes[i%2]), 8)
 	}
 
+
 	dataCodeWords := writer.Bytes()
-	fmt.Printf("Data Codewords: %d\n", dataCodeWords)
+	fmt.Printf("Data code words: %d\n", dataCodeWords)
 
 	finalMessage := getFinalMessage(dataCodeWords, ecInfo)
 	return finalMessage
@@ -95,6 +97,7 @@ func getFinalMessage(dataCodeWords []byte, ecInfo ecInfo) []byte {
 	ec1 := make([][]byte, 0, ecInfo.Group1.Blocks)
 	for _, data := range data1 {
 		ecCodeWords := GenerateErrorCorrectionCodeWords(data, ecInfo)
+		fmt.Printf("Error Correction codewords: %d\n", ecCodeWords)
 		ec1 = append(ec1, ecCodeWords)
 	}
 

@@ -63,6 +63,10 @@ func (e ecInfo) TotalCodewords() int {
 	return e.TotalDataCodewords + e.TotalECCodewords()
 }
 
+func (e ecInfo) TotalDataBits() int {
+	return e.TotalDataCodewords * 8
+}
+
 func (e ecInfo) TotalRequiredBits() int {
 	return e.TotalCodewords() * 8
 }
