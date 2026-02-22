@@ -4,18 +4,18 @@ import (
 	"aboutblank/qr-code/bitwriter"
 )
 
-// TODO: Implement
-func byteValue(r rune) (uint, bool) {
-	return 0, true
+func canEncodeByte(_ string) bool {
+	return true // anything can be turned into bytes, surprise surprise
 }
 
-// TODO: Implement
 func getByteCharCount(s string) (int, error) {
-	count := 0
-	return count, nil
+	return len([]byte(s)), nil
 }
 
-// TODO: Implement
 func writeByteString(writer *bitwriter.BitWriter, s string) error {
+	data := []byte(s)
+	for _, b := range data {
+		writer.WriteUInt(uint64(b), 8)
+	}
 	return nil
 }

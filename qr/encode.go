@@ -73,6 +73,7 @@ func GenerateQRCode(input string, encodingMode EncodingMode, ecLevel ErrorCorrec
 	}
 
 	dataCodeWords := writer.Bytes()
+	fmt.Printf("Data code words: %d\n", dataCodeWords)
 	finalMessage := getFinalMessage(dataCodeWords, ecInfo)
 
 	qrCode := New(version, ecLevel)
