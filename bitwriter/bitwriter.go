@@ -29,11 +29,14 @@ func (b *BitWriter) WriteUInt(data uint64, size uint8) {
 }
 
 func (b *BitWriter) Bytes() []byte {
+	out := append([]byte(nil), b.bytes...)
+
 	if b.nBits > 0 {
-		b.curr <<= (8 - b.nBits)
-		b.bytes = append(b.bytes, b.curr)
+		curr := b.curr << (8 - b.nBits)
+		out = append(out, curr)
 	}
-	return b.bytes
+
+	return out
 }
 
 func (b *BitWriter) TotalBits() int {
