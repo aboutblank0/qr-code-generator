@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	data := qr.GenerateQRCode("HELLO WORLD", qr.Alphanumeric, qr.EC_M)
+	data := qr.GenerateQRCode("ABOUT BLANK", qr.Alphanumeric, qr.EC_M)
 	fmt.Printf("Final data (interleaved): %d\n", data)
 
 	qrCode := qr.New(qr.Version(1), qr.EC_M)

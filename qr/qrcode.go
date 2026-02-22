@@ -195,12 +195,14 @@ func New(version Version, ecLevel ErrorCorrectionLevel) *QRCode {
 
 	qr.formatPositions = [30][2]int{
 		// Top-left area
-		{8, 0}, {8, 1}, {8, 2}, {8, 3}, {8, 4}, {8, 5}, {8, 7},
-		{8, 8}, {7, 8}, {5, 8}, {4, 8}, {3, 8}, {2, 8}, {1, 8}, {0, 8},
+		{0, 8}, {1, 8}, {2, 8}, {3, 8}, {4, 8}, {5, 8}, {7, 8}, {8, 8},
+		{8, 7}, {8, 5}, {8, 4}, {8, 3}, {8, 2}, {8, 1}, {8, 0},
 
-		// Mirror area
-		{size - 1, 8}, {size - 2, 8}, {size - 3, 8}, {size - 4, 8}, {size - 5, 8}, {size - 6, 8}, {size - 7, 8}, {size - 8, 8},
-		{8, size - 7}, {8, size - 6}, {8, size - 5}, {8, size - 4}, {8, size - 3}, {8, size - 2}, {8, size - 1},
+		// Bottom left 
+		{8, size - 1}, {8, size - 2}, {8, size - 3}, {8, size - 4},{8, size - 5},{8, size - 6}, {8, size - 7},
+
+		// Top Right
+		{size - 8, 8}, {size - 7, 8}, {size - 6, 8}, {size - 5, 8}, {size - 4, 8}, {size - 3, 8}, {size - 2, 8}, {size - 1, 8}, 
 	}
 
 	qr.versionPositions = [36][2]int{
