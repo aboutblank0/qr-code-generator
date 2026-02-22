@@ -9,7 +9,7 @@ import (
 
 func main() {
 	data := qr.GenerateQRCode("HELLO WORLD", qr.Alphanumeric, qr.EC_Q)
-	qrCode := qr.New(qr.Version(1))
+	qrCode := qr.New(qr.Version(1), qr.EC_Q)
 	qrCode.Test(data)
 
 	image := qrCode.GenerateImage(10)
