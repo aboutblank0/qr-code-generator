@@ -7,8 +7,20 @@ import (
 )
 
 func canEncodeKanji(s string) bool {
-	_, err := toShiftJIS(s)
-	return err == nil
+	b, err := toShiftJIS(s)
+	if err != nil || len(b)&1 != 0 {
+		return false
+	}
+
+	for i := 0; i < len(b); i += 2 {
+		code := (uint16(b[i]) << 8) | uint16(b[i+1])
+		if (code >= 0x8140 && code <= 0x9FFC) ||
+		   (code >= 0xE040 && code <= 0xEBBF) {
+			continue
+		}
+		return false
+	}
+	return true
 }
 
 // Only double byte JIS characters are supported.
@@ -38,7 +50,6 @@ func writeKanjiString(writer *bitwriter.BitWriter, s string) error {
 			adjusted = code - 0x8140
 		} else if code >= 0xE040 && code <= 0xEBBF {
 			adjusted = code - 0xC140
-
 		} else {
 			return fmt.Errorf("character not in JIS X 0208 range")
 		}
