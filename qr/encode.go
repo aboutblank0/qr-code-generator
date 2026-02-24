@@ -247,7 +247,6 @@ func determineMinQRVersion(charCount int, ecLevel ErrorCorrectionLevel, mode Enc
 	return 0, fmt.Errorf("data too long for any QR code version with this ErrorCorrection level")
 }
 
-// TODO: Add kanji mode check
 func determineBestEncodingMode(data string) EncodingMode {
 	if canEncodeNumeric(data) {
 		return Encode_Numeric
@@ -255,6 +254,10 @@ func determineBestEncodingMode(data string) EncodingMode {
 
 	if canEcodeAlphanumeric(data) {
 		return Encode_Alphanumeric
+	}
+	
+	if canEncodeKanji(data) {
+		return Encode_Kanji
 	}
 
 	return Encode_Byte
