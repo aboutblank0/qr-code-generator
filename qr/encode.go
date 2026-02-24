@@ -24,8 +24,40 @@ func getEncodingModeValue(mode EncodingMode) uint64 {
 	return uint64(1 << mode)
 }
 
-func GenerateQRCode(input string, encodingMode EncodingMode, ecLevel ErrorCorrectionLevel) *QRCode {
+func getEncodingModeString(mode EncodingMode) string {
+	switch mode {
+	case Encode_Numeric:
+		return "Numeric"
+	case Encode_Alphanumeric:
+		return "Alphanumeric"
+	case Encode_Kanji:
+		return "Kanji"
+	case Encode_Byte:
+		return "Byte"
+	}
+	return "INVALID"
+}
+
+func getErrorCorrectionString(ecLevel ErrorCorrectionLevel) string {
+	switch ecLevel {
+	case EC_Low:
+		return "Low"
+	case EC_Medium:
+		return "Medium"
+	case EC_Quartile:
+		return "Quartile"
+	case EC_High:
+		return "High"
+	}
+	return "INVALID"
+}
+
+func GenerateQRCode(input string, ecLevel ErrorCorrectionLevel) *QRCode {
 	writer := bitwriter.New()
+
+	encodingMode := determineBestEncodingMode(input)
+	fmt.Printf("Encoding Mode: %s\n", getEncodingModeString(encodingMode))
+	fmt.Printf("Error Correction Level: %s\n", getErrorCorrectionString(ecLevel))
 
 	// Write the encoding mode indicator (always 4 bits)
 	writer.WriteUInt(getEncodingModeValue(encodingMode), 4)
@@ -40,11 +72,14 @@ func GenerateQRCode(input string, encodingMode EncodingMode, ecLevel ErrorCorrec
 	if err != nil {
 		panic(err)
 	}
+	fmt.Printf("QRCode Version: %d\n", version)
+
 
 	// Check which version of QR code we are writing, that defines how many bits (the size) of the character count indicator
 	// Write the character count indicator
 	charCountSize := getCharCountSize(version, encodingMode)
 	writer.WriteUInt(uint64(charCount), uint8(charCountSize))
+	fmt.Printf("Writing char count: %d\n", charCount)
 
 	// Write/Encode the input string
 	err = writeString(writer, encodingMode, input)
@@ -105,6 +140,7 @@ func getFinalMessage(dataCodeWords []byte, ecInfo ErrorCorrectionInfo) []byte {
 	ec1 := make([][]byte, 0, ecInfo.Group1.Blocks)
 	for _, data := range data1 {
 		ecCodeWords := generateErrorCorrectionCodeWords(data, ecInfo)
+		fmt.Printf("Error Correction code words: %d\n", ecCodeWords)
 		ec1 = append(ec1, ecCodeWords)
 	}
 
@@ -209,4 +245,17 @@ func determineMinQRVersion(charCount int, ecLevel ErrorCorrectionLevel, mode Enc
 	}
 
 	return 0, fmt.Errorf("data too long for any QR code version with this ErrorCorrection level")
+}
+
+// TODO: Add kanji mode check
+func determineBestEncodingMode(data string) EncodingMode {
+	if canEncodeNumeric(data) {
+		return Encode_Numeric
+	}
+
+	if canEcodeAlphanumeric(data) {
+		return Encode_Alphanumeric
+	}
+
+	return Encode_Byte
 }

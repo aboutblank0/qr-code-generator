@@ -26,8 +26,7 @@ func (qr *QRCode) ApplyMask(mask int) {
 	size := len(qr.moduleMatrix)
 	for y := range size {
 		for x := range size {
-			mod := &qr.moduleMatrix[y][x]
-
+			mod := qr.getModule(x, y)
 			if mod.Reserved {
 				continue
 			}
@@ -48,11 +47,11 @@ func (qr *QRCode) ScoreMask() int {
 	size := len(qr.moduleMatrix)
 	score := 0
 
-	// Rule 1: rows
+	// Rule 1: rows (scan left → right)
 	for y := range size {
 		run := 1
 		for x := 1; x < size; x++ {
-			if qr.moduleMatrix[y][x].Value == qr.moduleMatrix[y][x-1].Value {
+			if qr.moduleMatrix[x][y].Value == qr.moduleMatrix[x-1][y].Value {
 				run++
 			} else {
 				if run >= 5 {
@@ -66,11 +65,11 @@ func (qr *QRCode) ScoreMask() int {
 		}
 	}
 
-	// Rule 1: columns
+	// Rule 1: columns (scan top → bottom)
 	for x := range size {
 		run := 1
 		for y := 1; y < size; y++ {
-			if qr.moduleMatrix[y][x].Value == qr.moduleMatrix[y-1][x].Value {
+			if qr.moduleMatrix[x][y].Value == qr.moduleMatrix[x][y-1].Value {
 				run++
 			} else {
 				if run >= 5 {
@@ -85,12 +84,13 @@ func (qr *QRCode) ScoreMask() int {
 	}
 
 	// Rule 2: 2x2 blocks
-	for y := 0; y < size-1; y++ {
-		for x := 0; x < size-1; x++ {
-			v := qr.moduleMatrix[y][x].Value
-			if qr.moduleMatrix[y+1][x].Value == v &&
-				qr.moduleMatrix[y][x+1].Value == v &&
-				qr.moduleMatrix[y+1][x+1].Value == v {
+	for x := 0; x < size-1; x++ {
+		for y := 0; y < size-1; y++ {
+			v := qr.moduleMatrix[x][y].Value
+
+			if qr.moduleMatrix[x+1][y].Value == v &&
+				qr.moduleMatrix[x][y+1].Value == v &&
+				qr.moduleMatrix[x+1][y+1].Value == v {
 				score += 3
 			}
 		}
@@ -101,18 +101,20 @@ func (qr *QRCode) ScoreMask() int {
 	total := size * size
 	for y := range size {
 		for x := range size {
-			if qr.moduleMatrix[y][x].Value == ValueBlack {
+			if qr.moduleMatrix[x][y].Value == ValueBlack {
 				dark++
 			}
 		}
 	}
+
 	percent := (dark * 100) / total
 	diff := percent - 50
 	if diff < 0 {
 		diff = -diff
-	}
-	score += (diff / 5) * 10
 
+	}
+
+	score += (diff / 5) * 10
 	return score
 }
 

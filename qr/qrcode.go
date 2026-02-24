@@ -2,6 +2,7 @@ package qr
 
 import (
 	"aboutblank/qr-code/bitreader"
+	"fmt"
 	"image"
 )
 
@@ -96,8 +97,8 @@ func (qr *QRCode) Clone() *QRCode {
 	}
 }
 
-func (qr *QRCode) getModule(x, y int) Module {
-	return qr.moduleMatrix[x][y]
+func (qr *QRCode) getModule(x, y int) *Module {
+	return &qr.moduleMatrix[x][y]
 }
 
 func (qr *QRCode) setModule(x, y int, value ModuleValue, reserved bool) {
@@ -110,7 +111,7 @@ func (qr *QRCode) ApplyFinalMessage(data []byte) {
 	qr.AddAlignmentPatterns()
 	qr.AddTimingPatterns()
 	qr.AddDarkModule()
-	qr.ReserveModules()
+	qr.ReserveFormatAndVersionModules()
 
 	qr.WriteData(data)
 	qr.ApplyBestMask()
@@ -186,7 +187,7 @@ func (qr *QRCode) AddDarkModule() {
 	qr.setModule(x, y, ValueBlack, true)
 }
 
-func (qr *QRCode) ReserveModules() {
+func (qr *QRCode) ReserveFormatAndVersionModules() {
 	for _, p := range qr.formatPositions {
 		qr.setModule(p[0], p[1], ValueNone, true)
 	}
@@ -203,7 +204,6 @@ func (qr *QRCode) WriteData(data []byte) {
 	positions := qr.dataPositions()
 
 	for _, pos := range positions {
-
 		val := ValueWhite
 		if reader.HasData() && reader.Pop() {
 			val = ValueBlack
@@ -215,6 +215,8 @@ func (qr *QRCode) WriteData(data []byte) {
 
 func (qr *QRCode) WriteFormatInfo() {
 	info := formatInfo[qr.EcLevel][qr.mask]
+	fmt.Printf("Mask: %d\n", qr.mask)
+	fmt.Printf("Writing format info: %015b\n", info)
 
 	for i, pos := range qr.formatPositions {
 		bitIndex := 14 - (i % 15)
@@ -225,7 +227,7 @@ func (qr *QRCode) WriteFormatInfo() {
 			val = ValueBlack
 		}
 
-		qr.setModule(pos[0], pos[1], val, false)
+		qr.setModule(pos[0], pos[1], val, true)
 	}
 }
 
@@ -241,7 +243,7 @@ func (qr *QRCode) WriteVersionInfo() {
 		if bit == 1 {
 			val = ValueBlack
 		}
-		qr.setModule(pos[0], pos[1], val, false)
+		qr.setModule(pos[0], pos[1], val, true)
 	}
 }
 
@@ -351,16 +353,8 @@ func (qr *QRCode) GenerateImage(scale int) *image.RGBA {
 		for y := range size {
 			c := byte(255)
 
-			switch qr.moduleMatrix[x][y].Value {
-			case ValueBlack:
+			if qr.moduleMatrix[x][y].Value == ValueBlack {
 				c = 0
-			case ValueNone:
-				c = 123
-			}
-
-			// TODO: REMOVE ME DEBUGGING
-			if qr.moduleMatrix[x][y].Value == ValueNone && qr.moduleMatrix[x][y].Reserved {
-				c = 50
 			}
 
 			drawX := (x + padding) * scale
