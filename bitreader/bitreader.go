@@ -27,4 +27,3 @@ func (b *BitReader) Pop() bool {
 func (b *BitReader) HasData() bool {
 	return b.curr < len(b.bytes)
 }
-

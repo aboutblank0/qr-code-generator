@@ -52,7 +52,7 @@ func getErrorCorrectionString(ecLevel ErrorCorrectionLevel) string {
 	return "INVALID"
 }
 
-func GenerateQRCode(input string, ecLevel ErrorCorrectionLevel) *QRCode {
+func GenerateQRCode(input string, ecLevel ErrorCorrectionLevel, versionOverride int) *QRCode {
 	writer := bitwriter.New()
 
 	encodingMode := determineBestEncodingMode(input)
@@ -72,8 +72,11 @@ func GenerateQRCode(input string, ecLevel ErrorCorrectionLevel) *QRCode {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("QRCode Version: %d\n", version)
+	if versionOverride > 0 {
+		version = Version(versionOverride)
+	}
 
+	fmt.Printf("QRCode Version: %d\n", version)
 
 	// Check which version of QR code we are writing, that defines how many bits (the size) of the character count indicator
 	// Write the character count indicator

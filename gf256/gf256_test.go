@@ -87,6 +87,5 @@ func TestMultiplyBy2(t *testing.T) {
 		if got != want {
 			t.Errorf("2 * %#x = %#x, want %#x", a, got, want)
 		}
-
 	}
 }

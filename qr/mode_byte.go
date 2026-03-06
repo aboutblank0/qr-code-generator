@@ -4,10 +4,6 @@ import (
 	"aboutblank/qr-code/bitwriter"
 )
 
-func canEncodeByte(_ string) bool {
-	return true // anything can be turned into bytes, surprise surprise
-}
-
 func getByteCharCount(s string) (int, error) {
 	return len([]byte(s)), nil
 }

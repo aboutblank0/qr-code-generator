@@ -12,8 +12,9 @@ func Multiply(a, b byte) byte {
 	if a == 0 || b == 0 {
 		return 0
 	}
-	idx := int(gfLog[a])+int(gfLog[b])
-	return gfExp[idx % 255]
+
+	idx := int(gfLog[a]) + int(gfLog[b])
+	return gfExp[idx%255]
 }
 
 func Divide(a, b byte) byte {
@@ -25,8 +26,8 @@ func Divide(a, b byte) byte {
 		return 0
 	}
 
-	idx := int(gfLog[a])-int(gfLog[b]) + 255
-	return gfExp[idx % 255]
+	idx := int(gfLog[a]) - int(gfLog[b]) + 255
+	return gfExp[idx%255]
 }
 
 func Exp(i byte) byte {
@@ -34,7 +35,7 @@ func Exp(i byte) byte {
 }
 
 // NOTE: TO SELF
-//Returns the α^i that results in the polynomial produced by that number
+// Returns the α^i that results in the polynomial produced by that number
 //
 // For example: 00000011 (3 in decimal, x + 1) is represented as α^25
 // Therefore this function will return 25 for the byte 00000011
@@ -45,7 +46,6 @@ func Log(i byte) byte {
 }
 
 // Pre-computed values of 2^i % gfPoly  (where i is the index).
-// It is essentially repeated twice (at 512/2) to avoid having to % 256.
 //
 // where gfPoly is 0x11d (x^8 + x^4 + x^3 + x^2 + 1)
 // NOTE: TO SELF
@@ -72,10 +72,6 @@ var gfExp = [256]byte{
 
 // gfLog is an inverse mapping of gfExp
 // basically: gfLog[gfExp[i]] = i
-
-// in other words: 2^value = index
-// for example: 2^25 = 3
-// you can see the 3rd index = 25
 var gfLog = [256]byte{
 	0, //log(0) undefined
 	0, 1, 25, 2, 50, 26, 198, 3, 223, 51, 238, 27, 104, 199, 75,

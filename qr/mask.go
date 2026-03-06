@@ -111,7 +111,6 @@ func (qr *QRCode) ScoreMask() int {
 	diff := percent - 50
 	if diff < 0 {
 		diff = -diff
-
 	}
 
 	score += (diff / 5) * 10
