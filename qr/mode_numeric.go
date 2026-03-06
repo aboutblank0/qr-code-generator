@@ -45,7 +45,6 @@ func writeNumericString(writer *bitwriter.BitWriter, s string) error {
 	if i < len(runes) {
 		if i+1 < len(runes) {
 			// two digits left -> 7 bits
-			fmt.Println("handling writing 2 digits")
 			val := 10*numMap[runes[i]] + numMap[runes[i+1]]
 			writer.WriteUInt(uint64(val), 7)
 			return nil

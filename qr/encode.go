@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+var verbose bool
+
 type EncodingMode uint8
 
 const (
@@ -52,12 +54,15 @@ func getErrorCorrectionString(ecLevel ErrorCorrectionLevel) string {
 	return "INVALID"
 }
 
-func GenerateQRCode(input string, ecLevel ErrorCorrectionLevel, versionOverride int) *QRCode {
+func GenerateQRCode(input string, ecLevel ErrorCorrectionLevel, versionOverride int, verboseFlag bool) *QRCode {
+	verbose = verboseFlag
 	writer := bitwriter.New()
 
 	encodingMode := determineBestEncodingMode(input)
-	fmt.Printf("Encoding Mode: %s\n", getEncodingModeString(encodingMode))
-	fmt.Printf("Error Correction Level: %s\n", getErrorCorrectionString(ecLevel))
+	if verbose {
+		fmt.Printf("Encoding Mode: %s\n", getEncodingModeString(encodingMode))
+		fmt.Printf("Error Correction Level: %s\n", getErrorCorrectionString(ecLevel))
+	}
 
 	// Write the encoding mode indicator (always 4 bits)
 	writer.WriteUInt(getEncodingModeValue(encodingMode), 4)
@@ -76,13 +81,17 @@ func GenerateQRCode(input string, ecLevel ErrorCorrectionLevel, versionOverride 
 		version = Version(versionOverride)
 	}
 
-	fmt.Printf("QRCode Version: %d\n", version)
+	if verbose {
+		fmt.Printf("QRCode Version: %d\n", version)
+	}
 
 	// Check which version of QR code we are writing, that defines how many bits (the size) of the character count indicator
 	// Write the character count indicator
 	charCountSize := getCharCountSize(version, encodingMode)
 	writer.WriteUInt(uint64(charCount), uint8(charCountSize))
-	fmt.Printf("Writing char count: %d\n", charCount)
+	if verbose {
+		fmt.Printf("Char count: %d\n", charCount)
+	}
 
 	// Write/Encode the input string
 	err = writeString(writer, encodingMode, input)
@@ -111,7 +120,10 @@ func GenerateQRCode(input string, ecLevel ErrorCorrectionLevel, versionOverride 
 	}
 
 	dataCodeWords := writer.Bytes()
-	fmt.Printf("Data code words: %d\n", dataCodeWords)
+	if verbose {
+		fmt.Printf("Data code words: %d\n", dataCodeWords)
+	}
+
 	finalMessage := getFinalMessage(dataCodeWords, ecInfo)
 
 	qrCode := New(version, ecLevel)
@@ -143,7 +155,10 @@ func getFinalMessage(dataCodeWords []byte, ecInfo ErrorCorrectionInfo) []byte {
 	ec1 := make([][]byte, 0, ecInfo.Group1.Blocks)
 	for _, data := range data1 {
 		ecCodeWords := generateErrorCorrectionCodeWords(data, ecInfo)
-		fmt.Printf("Error Correction code words: %d\n", ecCodeWords)
+		if verbose {
+			fmt.Printf("Error Correction code words: %d\n", ecCodeWords)
+		}
+
 		ec1 = append(ec1, ecCodeWords)
 	}
 

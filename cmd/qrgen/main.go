@@ -13,7 +13,9 @@ func main() {
 	var helpFlag = flag.Bool("help", false, "Display help information")
 	var scaleFlag = flag.Int("scale", 10, "Scale factor for the generated QR code image")
 	var outputFlag = flag.String("output", "qrcode.png", "Output file name for the generated QR code image")
-	var versionOverrideFlag = flag.Int("version", 0, "Override QR code version (1-40)")
+	var versionOverrideFlag = flag.Int("version", 0, "Override QR code version (1-40). If ommitted, the version will be automatically determined based on the content length.")
+	var errorCorrectionFlag = flag.String("ec", "M", "Error correction level (L, M, Q, H)")
+	var verboseFlag = flag.Bool("verbose", false, "Enable verbose output")
 
 	flag.Parse()
 
@@ -35,8 +37,13 @@ func main() {
 		return
 	}
 
+	if *errorCorrectionFlag != "L" && *errorCorrectionFlag != "M" && *errorCorrectionFlag != "Q" && *errorCorrectionFlag != "H" {
+		fmt.Println("ERR: Invalid error correction level. Must be one of L, M, Q, H.")
+		return
+	}
+
 	content := flag.Arg(0)
-	qrCode := qr.GenerateQRCode(content, qr.EC_Medium, *versionOverrideFlag)
+	qrCode := qr.GenerateQRCode(content, getErrorCorrectionLevel(*errorCorrectionFlag), *versionOverrideFlag, *verboseFlag)
 	image := qrCode.GenerateImage(*scaleFlag)
 	err := SaveImage(image, *outputFlag)
 
@@ -45,6 +52,21 @@ func main() {
 		return
 	}
 }
+
+func getErrorCorrectionLevel(ec string) qr.ErrorCorrectionLevel {
+	switch ec {
+	case "L":
+		return qr.EC_Low
+	case "M":
+		return qr.EC_Medium
+	case "Q":
+		return qr.EC_Quartile
+	case "H":
+		return qr.EC_High
+	default:
+		return qr.EC_Medium // Default to Medium if invalid input
+	}
+}	
 
 func PrintHelp() {
 	fmt.Println("Usage: qrgen [options] <content>")
@@ -55,13 +77,13 @@ func PrintHelp() {
 func SaveImage(image *image.RGBA, fileName string) error {
 	f, err := os.Create(fileName)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer f.Close()
 
 	err = png.Encode(f, image)
 	if err != nil {
-		return nil
+		return err
 	}
 	return nil
 }

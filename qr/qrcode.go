@@ -213,7 +213,10 @@ func (qr *QRCode) WriteData(data []byte) {
 
 func (qr *QRCode) WriteFormatInfo() {
 	info := formatInfo[qr.EcLevel][qr.mask]
-	fmt.Printf("Writing format info: %015b\n", info)
+
+	if verbose {
+		fmt.Printf("Format info: %015b\n", info)
+	}
 
 	for i, pos := range qr.formatPositions {
 		bitIndex := 14 - (i % 15)

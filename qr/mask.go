@@ -1,6 +1,9 @@
 package qr
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 func (qr *QRCode) ApplyBestMask() {
 	bestScore := math.MaxInt
@@ -15,6 +18,10 @@ func (qr *QRCode) ApplyBestMask() {
 			bestScore = score
 			bestMask = mask
 		}
+	}
+
+	if verbose {
+		fmt.Printf("Mask: %d\n", bestMask)
 	}
 
 	qr.ApplyMask(bestMask)
