@@ -213,7 +213,6 @@ func (qr *QRCode) WriteData(data []byte) {
 
 func (qr *QRCode) WriteFormatInfo() {
 	info := formatInfo[qr.EcLevel][qr.mask]
-	fmt.Printf("Mask: %d\n", qr.mask)
 	fmt.Printf("Writing format info: %015b\n", info)
 
 	for i, pos := range qr.formatPositions {
@@ -236,15 +235,15 @@ func (qr *QRCode) WriteVersionInfo() {
 
 	info := versionInfo[int(qr.Version)]
 	for i, pos := range qr.versionPositions {
-		bit := (info >> (17 - i)) & 1
-		val := ValueWhite
-		if bit == 1 {
+		bit := (info >> (i%18)) & 1
+		
+		var val ModuleValue = ValueWhite
+		if bit == 1{
 			val = ValueBlack
 		}
 		qr.setModule(pos[0], pos[1], val, true)
 	}
 }
-
 
 func (qr *QRCode) addFinder(x0, y0 int) {
 	for x := range 7 {
