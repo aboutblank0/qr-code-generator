@@ -5,8 +5,6 @@ import (
 	"testing"
 )
 
-
-
 func TestWriteSingleByte(t *testing.T) {
 	bw := New()
 	bw.WriteUInt(0b10101010, 8)
@@ -24,7 +22,6 @@ func TestWriteAcrossByteBoundary(t *testing.T) {
 	bw.WriteUInt(0b101, 3)
 	bw.WriteUInt(0b11100, 5)
 
-
 	result := bw.Bytes()
 	expected := []byte{0b10111100}
 
@@ -39,10 +36,8 @@ func TestMultipleBytes(t *testing.T) {
 	bw := New()
 	bw.WriteUInt(0xABCD, 16)
 
-
 	result := bw.Bytes()
 	expected := []byte{0xAB, 0xCD}
-
 
 	if !bytes.Equal(result, expected) {
 		t.Fatalf("expected % X, got % X", expected, result)
