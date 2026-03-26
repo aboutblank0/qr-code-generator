@@ -1,6 +1,6 @@
 # QRGen
 
-A simple QR code generator written in Go.
+A simple QR code generator written in Go. **No external libraries are used except `golang.org/x/text`.**
 
 For fun/learning project, made following the great tutorial at [Thonky](https://www.thonky.com/qr-code-tutorial/)
 
