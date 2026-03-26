@@ -1,17 +1,16 @@
 # QRGen
 
 A simple QR code generator written in Go.
-Generates QR codes from text input with configurable size, error correction, and version.
+
+For fun/learning project, made following the great tutorial at [Thonky](https://www.thonky.com/qr-code-tutorial/)
 
 ## Features
 
-* Generate QR codes from any string input
-
-* Adjustable scale (image size)
-* Custom output file name
+* Automatically detect which encoding mode to use depending on input string.
 * Error correction levels (L, M, Q, H)
 * Optional manual QR version override
 * Verbose mode for debugging
+* Adjustable scale (image size)
 
 ## Installation
 
@@ -32,13 +31,13 @@ go build -o qrgen ./cmd/qrgen/
 
 ```bash
 
-qrgen [options] <content>
+qrgen <content> [options]
 ```
 
 ### Example
 
 ```bash
-qrgen -scale 8 -output hello.png "Hello world"
+qrgen "Hello world" -scale 8 -output hello.png 
 ```
 
 
